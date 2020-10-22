@@ -15,10 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fabricmc.tinyremapper;
+package net.leathermc.tinyremapper;
 
-import net.fabricmc.tinyremapper.MemberInstance.MemberType;
-import net.fabricmc.tinyremapper.TinyRemapper.Direction;
+import net.leathermc.tinyremapper.MemberInstance.MemberType;
 import org.objectweb.asm.Opcodes;
 
 import java.nio.file.Path;
@@ -152,7 +151,7 @@ public final class ClassInstance {
 	 * @param idDst New name.
 	 * @param dir Futher propagation direction.
 	 */
-	void propagate(TinyRemapper remapper, MemberType type, String originatingCls, String idSrc, String nameDst, Direction dir, boolean isVirtual, boolean first, Set<ClassInstance> visitedUp, Set<ClassInstance> visitedDown) {
+	void propagate(TinyRemapper remapper, MemberType type, String originatingCls, String idSrc, String nameDst, TinyRemapper.Direction dir, boolean isVirtual, boolean first, Set<ClassInstance> visitedUp, Set<ClassInstance> visitedDown) {
 		/*
 		 * initial private member or static method in interface: only local
 		 * non-virtual: up to matching member (if not already in this), then down until matching again (exclusive)
@@ -189,7 +188,7 @@ public final class ClassInstance {
 			// potentially intermediately accessed location, handled through resolution in the remapper
 		}
 
-		assert isVirtual || dir == Direction.DOWN;
+		assert isVirtual || dir == TinyRemapper.Direction.DOWN;
 
 		/*
 		 * Propagate the mapping along the hierarchy tree.
@@ -208,18 +207,18 @@ public final class ClassInstance {
 		 * different branches of the hierarchy tree that were not visited before may access it.
 		 */
 
-		if (dir == Direction.ANY || dir == Direction.UP || isVirtual && member != null && (member.access & (Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE)) == 0) {
+		if (dir == TinyRemapper.Direction.ANY || dir == TinyRemapper.Direction.UP || isVirtual && member != null && (member.access & (Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE)) == 0) {
 			for (ClassInstance node : parents) {
 				if (visitedUp.add(node)) {
-					node.propagate(remapper, type, originatingCls, idSrc, nameDst, Direction.UP, isVirtual, false, visitedUp, visitedDown);
+					node.propagate(remapper, type, originatingCls, idSrc, nameDst, TinyRemapper.Direction.UP, isVirtual, false, visitedUp, visitedDown);
 				}
 			}
 		}
 
-		if (dir == Direction.ANY || dir == Direction.DOWN || isVirtual && member != null && (member.access & (Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE)) == 0) {
+		if (dir == TinyRemapper.Direction.ANY || dir == TinyRemapper.Direction.DOWN || isVirtual && member != null && (member.access & (Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE)) == 0) {
 			for (ClassInstance node : children) {
 				if (visitedDown.add(node)) {
-					node.propagate(remapper, type, originatingCls, idSrc, nameDst, Direction.DOWN, isVirtual, false, visitedUp, visitedDown);
+					node.propagate(remapper, type, originatingCls, idSrc, nameDst, TinyRemapper.Direction.DOWN, isVirtual, false, visitedUp, visitedDown);
 				}
 			}
 		}

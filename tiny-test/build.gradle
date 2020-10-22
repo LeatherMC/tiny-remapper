@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.fabricmc'
+group 'net.leathermc'
 version '0.3.1'
 
 repositories {

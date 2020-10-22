@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fabricmc.tinyremapper;
+package net.leathermc.tinyremapper;
 
 import org.objectweb.asm.Opcodes;
 

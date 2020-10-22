@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fabricmc.tinyremapper;
+package net.leathermc.tinyremapper;
 
-import net.fabricmc.tinyremapper.IMappingProvider.MappingAcceptor;
-import net.fabricmc.tinyremapper.IMappingProvider.Member;
+import net.leathermc.tinyremapper.IMappingProvider.MappingAcceptor;
+import net.leathermc.tinyremapper.IMappingProvider.Member;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Remapper;
 
@@ -194,6 +194,10 @@ public final class TinyUtils {
 			throw new EOFException();
 		} else if (headerLine.startsWith("tot")) {
 			readTaterV1(reader, from, to, headerLine, out, postProcessor);
+		} else if (headerLine.startsWith("v1")) { // TinyV1 support
+			readV1(reader, from, to, headerLine, out, postProcessor);
+		} else if (headerLine.startsWith("tiny\tv2\t")) { // TinyV2 support
+			readV2(reader, from, to, headerLine, out, postProcessor);
 		} else {
 			throw new IOException("Invalid mapping version!");
 		}

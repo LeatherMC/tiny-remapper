@@ -1,7 +1,7 @@
-import net.fabricmc.tinyremapper.NonClassCopyMode;
-import net.fabricmc.tinyremapper.OutputConsumerPath;
-import net.fabricmc.tinyremapper.TinyRemapper;
-import net.fabricmc.tinyremapper.TinyUtils;
+import net.leathermc.tinyremapper.NonClassCopyMode;
+import net.leathermc.tinyremapper.OutputConsumerPath;
+import net.leathermc.tinyremapper.TinyRemapper;
+import net.leathermc.tinyremapper.TinyUtils;
 
 import java.io.File;
 import java.io.IOException;

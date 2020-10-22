@@ -19,7 +19,7 @@ if (ENV.BUILD_NUMBER) {
     version = version + "." + "${System.getenv().BUILD_NUMBER}"
 }
 
-group = 'net.fabricmc'
+group = 'net.leathermc'
 archivesBaseName = 'tiny-remapper'
 
 repositories {

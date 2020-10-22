@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fabricmc.tinyremapper;
+package net.leathermc.tinyremapper;
 
-import net.fabricmc.tinyremapper.MemberInstance.MemberType;
+import net.leathermc.tinyremapper.MemberInstance.MemberType;
 import org.objectweb.asm.commons.Remapper;
 
 import java.util.Locale;

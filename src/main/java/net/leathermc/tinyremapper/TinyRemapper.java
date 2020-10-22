@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fabricmc.tinyremapper;
+package net.leathermc.tinyremapper;
 
-import net.fabricmc.tinyremapper.IMappingProvider.MappingAcceptor;
-import net.fabricmc.tinyremapper.IMappingProvider.Member;
-import net.fabricmc.tinyremapper.MemberInstance.MemberType;
+import net.leathermc.tinyremapper.IMappingProvider.MappingAcceptor;
+import net.leathermc.tinyremapper.IMappingProvider.Member;
+import net.leathermc.tinyremapper.MemberInstance.MemberType;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.util.CheckClassAdapter;

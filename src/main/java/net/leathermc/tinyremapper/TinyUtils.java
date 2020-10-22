@@ -192,11 +192,11 @@ public final class TinyUtils {
 
 		if (headerLine == null) {
 			throw new EOFException();
-		} else if (headerLine.startsWith("tot")) {
+		} else if (headerLine.startsWith("tot\t")) {
 			readTaterV1(reader, from, to, headerLine, out, postProcessor);
-		} else if (headerLine.startsWith("v1")) { // TinyV1 support
+		} else if (headerLine.startsWith("v1\t")) { // TinyV1 support
 			readV1(reader, from, to, headerLine, out, postProcessor);
-		} else if (headerLine.startsWith("tiny\tv2\t")) { // TinyV2 support
+		} else if (headerLine.startsWith("tiny\t2\t")) { // TinyV2 support
 			readV2(reader, from, to, headerLine, out, postProcessor);
 		} else {
 			throw new IOException("Invalid mapping version!");

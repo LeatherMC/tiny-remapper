@@ -17,50 +17,24 @@
 
 package net.fabricmc.tinyremapper;
 
+import net.fabricmc.tinyremapper.IMappingProvider.MappingAcceptor;
+import net.fabricmc.tinyremapper.IMappingProvider.Member;
+import net.fabricmc.tinyremapper.MemberInstance.MemberType;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.util.CheckClassAdapter;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.util.CheckClassAdapter;
-
-import net.fabricmc.tinyremapper.IMappingProvider.MappingAcceptor;
-import net.fabricmc.tinyremapper.IMappingProvider.Member;
-import net.fabricmc.tinyremapper.MemberInstance.MemberType;
 
 public class TinyRemapper {
 	public static class Builder {
@@ -267,7 +241,7 @@ public class TinyRemapper {
 		return ret;
 	}
 
-	public void readClassPath(final Path... inputs) {
+	public void readClassPath(final Path[] inputs) {
 		read(inputs, false, null).join();
 	}
 
@@ -920,7 +894,7 @@ public class TinyRemapper {
 		return writer.toByteArray();
 	}
 
-	public AsmRemapper getRemapper() {
+	public AsmRemapper getRemapper() throws Exception {
 		refresh();
 
 		return remapper;

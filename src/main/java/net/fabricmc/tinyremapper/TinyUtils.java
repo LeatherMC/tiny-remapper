@@ -17,23 +17,17 @@
 
 package net.fabricmc.tinyremapper;
 
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import net.fabricmc.tinyremapper.IMappingProvider.MappingAcceptor;
+import net.fabricmc.tinyremapper.IMappingProvider.Member;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.Remapper;
+
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.zip.GZIPInputStream;
-
-import org.objectweb.asm.commons.Remapper;
-
-import net.fabricmc.tinyremapper.IMappingProvider.MappingAcceptor;
-import net.fabricmc.tinyremapper.IMappingProvider.Member;
 
 public final class TinyUtils {
 	private static final class MemberMapping {
@@ -115,15 +109,15 @@ public final class TinyUtils {
 		return out -> {
 			try {
 				readInternal(reader, fromM, toM, out);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 			//System.out.printf("%d classes, %d methods, %d fields%n", classMap.size(), methodMap.size(), fieldMap.size());
 		};
 	}
 
-	private static void readInternal(BufferedReader reader, String fromM, String toM, MappingAcceptor out) throws IOException {
+	private static void readInternal(BufferedReader reader, String fromM, String toM, MappingAcceptor out) {
 		List<MemberMapping> methodMappings = new ArrayList<>();
 		List<MethodArgMapping> methodArgMappings = new ArrayList<>();
 		List<MethodVarMapping> methodVarMappings = new ArrayList<>();
@@ -161,14 +155,18 @@ public final class TinyUtils {
 			}
 		};
 
-		TinyUtils.read(reader, fromM, toM,
-				tmp,
-				(remapClasses, classMapper) -> {
-					for (Member m : members) {
-						if (remapClasses) m.owner = classMapper.map(m.owner);
-						m.desc = classMapper.mapDesc(m.desc);
-					}
-				});
+		try {
+			TinyUtils.read(reader, fromM, toM,
+					tmp,
+					(remapClasses, classMapper) -> {
+						for (Member m : members) {
+							if (remapClasses) m.owner = classMapper.map(m.owner);
+							m.desc = classMapper.mapDesc(m.desc);
+						}
+					});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		for (MemberMapping m : methodMappings) {
 			out.acceptMethod(m.member, m.newName);
@@ -188,19 +186,100 @@ public final class TinyUtils {
 	}
 
 	public static void read(BufferedReader reader, String from, String to,
-			MappingAcceptor out,
-			BiConsumer<Boolean, SimpleClassMapper> postProcessor)
-					throws IOException {
+	                        MappingAcceptor out,
+	                        BiConsumer<Boolean, SimpleClassMapper> postProcessor) throws Exception {
 		String headerLine = reader.readLine();
 
 		if (headerLine == null) {
 			throw new EOFException();
-		} else if (headerLine.startsWith("v1\t")) {
-			readV1(reader, from, to, headerLine, out, postProcessor);
-		} else if (headerLine.startsWith("tiny\t2\t")) {
-			readV2(reader, from, to, headerLine, out, postProcessor);
+		} else if (headerLine.startsWith("tot")) {
+			readTaterV1(reader, from, to, headerLine, out, postProcessor);
 		} else {
 			throw new IOException("Invalid mapping version!");
+		}
+	}
+
+	private static void readTaterV1(BufferedReader reader, String from, String to,
+			String headerLine,
+			MappingAcceptor out,
+			BiConsumer<Boolean, SimpleClassMapper> postProcessor) throws Exception {
+		List<String> headerList = Arrays.asList(headerLine.split("\t"));
+		int fromIndex = headerList.indexOf(from) - 1;
+		int toIndex = headerList.indexOf(to) - 1;
+
+		if (fromIndex < 0) throw new IOException("Could not find mapping '" + from + "'!");
+		if (toIndex < 0) throw new IOException("Could not find mapping '" + to + "'!");
+
+		Map<String, String> obfFrom = fromIndex != 0 ? new HashMap<>() : null;
+
+		String line;
+		String lastClass = "";
+		Member lastMethod = null;
+		// O(n^2)
+		// todo: optimize
+		while ((line = reader.readLine()) != null) {
+			int indent = 0;
+			String[] splitLine = line.split("\t");
+			if (splitLine.length < 2) continue;
+
+			for (String c : splitLine) {
+				if (c.equals("")) {
+					indent++;
+				}
+			}
+
+			String type = splitLine[indent];
+
+			if (type.equals("c")) {
+				String fromName = splitLine[1 + fromIndex];
+				String toName = splitLine[1 + toIndex];
+				System.out.println(fromName + " " + toName);
+				out.acceptClass(fromName, toName);
+				lastClass = fromName;
+			} else if (indent > 0) {
+				String fromName = type.equals("p") ? null : splitLine[1 + fromIndex + indent];
+				String toName = splitLine[(type.equals("p") ? 0 : 1) + toIndex + indent];
+				String desc = splitLine[2 + indent + (type.equals("p") ? 0 : 1)];
+				if (fromName == null) {
+					fromName = placeholder(lastMethod.args.get(Integer.parseInt(desc)), Integer.parseInt(desc));
+				}
+				System.out.println(fromName + " " + toName + " " + desc);
+				Member member = type.equals("p") ? null : new Member(lastClass, fromName, desc);
+
+				switch (type) {
+					case "m": {
+						out.acceptMethod(member, toName);
+						lastMethod = member;
+						break;
+					}
+					case "f": {
+						out.acceptField(member, toName);
+						break;
+					}
+					case "p": {
+						if (indent != 2) break;
+						out.acceptMethodArg(lastMethod, Integer.parseInt(desc), toName);
+						break;
+					}
+					// todo: var mapping
+					/*case "v": {
+						if (indent != 2) break;
+						out.acceptMethodVar(lastMethod, varAmount);
+						varAmount++;
+						break;
+					}*/
+					default: {
+						throw new RuntimeException("Invalid type: " + type);
+					}
+				}
+			} else {
+				// fixme: why does it say NaN :concern:
+				throw new RuntimeException("[Line " + Float.NaN + "] Unexpected string: \"" + Arrays.toString(splitLine) + "\"\nType: " + type);
+			}
+		}
+
+		if (obfFrom != null) {
+			postProcessor.accept(true, new SimpleClassMapper(obfFrom));
 		}
 	}
 
@@ -416,6 +495,12 @@ public final class TinyUtils {
 		ret.append(str, start, str.length());
 
 		return ret.toString();
+	}
+
+	private static String placeholder(Type type, int index) {
+		List<String> a = Arrays.asList(type.getClassName().split("\\."));
+		String s = a.get(a.size() - 1);
+		return s.toLowerCase().charAt(0) + s.substring(1) + index;
 	}
 
 	private static final String toEscape = "\\\n\r\0\t";

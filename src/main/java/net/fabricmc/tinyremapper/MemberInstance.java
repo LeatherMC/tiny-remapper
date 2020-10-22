@@ -17,9 +17,9 @@
 
 package net.fabricmc.tinyremapper;
 
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
 import org.objectweb.asm.Opcodes;
+
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 public final class MemberInstance {
 	MemberInstance(MemberInstance.MemberType type, ClassInstance cls, String name, String desc, int access) {

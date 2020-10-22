@@ -17,33 +17,16 @@
 
 package net.fabricmc.tinyremapper;
 
+import net.fabricmc.tinyremapper.MemberInstance.MemberType;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.*;
+import org.objectweb.asm.tree.*;
+
+import javax.lang.model.SourceVersion;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.lang.model.SourceVersion;
-
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.TypePath;
-import org.objectweb.asm.commons.AnnotationRemapper;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.FieldRemapper;
-import org.objectweb.asm.commons.MethodRemapper;
-import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.ParameterNode;
-
-import net.fabricmc.tinyremapper.MemberInstance.MemberType;
 
 class AsmClassRemapper extends ClassRemapper {
 	public AsmClassRemapper(ClassVisitor cv, AsmRemapper remapper, boolean checkPackageAccess, boolean skipLocalMapping, boolean renameInvalidLocals) {

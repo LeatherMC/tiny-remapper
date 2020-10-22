@@ -17,11 +17,10 @@
 
 package net.fabricmc.tinyremapper;
 
-import java.util.Locale;
-
+import net.fabricmc.tinyremapper.MemberInstance.MemberType;
 import org.objectweb.asm.commons.Remapper;
 
-import net.fabricmc.tinyremapper.MemberInstance.MemberType;
+import java.util.Locale;
 
 class AsmRemapper extends Remapper {
 	public AsmRemapper(TinyRemapper remapper) {

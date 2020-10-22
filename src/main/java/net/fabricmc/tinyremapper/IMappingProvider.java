@@ -17,6 +17,12 @@
 
 package net.fabricmc.tinyremapper;
 
+import org.objectweb.asm.Type;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @FunctionalInterface
 public interface IMappingProvider {
 	void load(MappingAcceptor out);
@@ -34,10 +40,15 @@ public interface IMappingProvider {
 			this.owner = owner;
 			this.name = name;
 			this.desc = desc;
+			if (Type.getType(desc).getSort() == Type.METHOD) {
+				this.args = new ArrayList<>();
+				Collections.addAll(args, Type.getArgumentTypes(desc));
+			}
 		}
 
 		public String owner;
 		public String name;
 		public String desc;
+		public List<Type> args;
 	}
 }

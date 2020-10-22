@@ -7,3 +7,5 @@
 /.gradle
 *.jar
 *.tiny
+*.tater
+.DS_Store

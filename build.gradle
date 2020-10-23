@@ -12,7 +12,7 @@ buildscript {
 }
 
 sourceCompatibility = 1.8
-version = '0.4.0-pre.1'
+version = '0.4.0'
 
 def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
@@ -40,7 +40,7 @@ jar {
 	manifest {
 		attributes	'Implementation-Title': 'TinyRemapper',
 					'Implementation-Version': version,
-					'Main-Class': "net.fabricmc.tinyremapper.Main"
+					'Main-Class': "net.leathermc.tinyremapper.Main"
 	}
 }
 
@@ -53,7 +53,7 @@ task fatJar(type: Jar) {
 	manifest {
 		attributes	'Implementation-Title': 'TinyRemapper',
 					'Implementation-Version': version,
-					'Main-Class': "net.fabricmc.tinyremapper.Main"
+					'Main-Class': "net.leathermc.tinyremapper.Main"
 	}
 	classifier = 'fat'
 	with jar
